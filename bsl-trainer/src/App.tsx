@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Trainer from "./trainer/main";
+import VideoCanvasOverlay from "./components/HandTracker";
 
 function App() {
   // const game: Trainer = new Trainer();
@@ -73,6 +74,9 @@ function App() {
         <br></br>
         <p>{remainingChars}</p>
       </div>
+
+      <VideoCanvasOverlay></VideoCanvasOverlay>
+      {/* <Demo></Demo> */}
     </>
   );
 }
