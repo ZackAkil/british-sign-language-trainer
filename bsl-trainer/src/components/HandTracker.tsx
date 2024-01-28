@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   DrawingUtils,
   FilesetResolver,
@@ -10,6 +10,9 @@ interface VideoCanvasOverlayProps {}
 const VideoCanvasOverlay: React.FC<VideoCanvasOverlayProps> = ({}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [rightHand, setRightHand] = useState(Number);
+  const [leftHand, setLeftHand] = useState(Number);
 
   useEffect(() => {
     let handLandmarker: HandLandmarker;
@@ -61,9 +64,27 @@ const VideoCanvasOverlay: React.FC<VideoCanvasOverlayProps> = ({}) => {
 
         if (canvasCtx) {
           const drawingUtils = new DrawingUtils(canvasCtx);
+
           if (results.landmarks) {
+            let [leftPresent, rightPresent] = [false, false];
+
+            for (const hands of results.handedness) {
+              console.log("hands", hands);
+              if (hands[0].displayName == "Right") {
+                setLeftHand(hands[0].score);
+                rightPresent = true;
+              } else if (hands[0].displayName == "Left") {
+                setRightHand(hands[0].score);
+                leftPresent = true;
+              }
+            }
+
+            if (!rightPresent) setLeftHand(0);
+            if (!leftPresent) setRightHand(0);
+
             for (const landmarks of results.landmarks) {
-              console.log(landmarks);
+              console.log("landmarks", landmarks);
+
               drawingUtils.drawConnectors(
                 landmarks,
                 HandLandmarker.HAND_CONNECTIONS,
@@ -139,6 +160,8 @@ const VideoCanvasOverlay: React.FC<VideoCanvasOverlayProps> = ({}) => {
   return (
     <div>
       <p>hand tracker</p>
+      <div>right hand: {rightHand}</div>
+      <div>left hand: {leftHand}</div>
       <video
         style={{ width: "100%", display: "none" }}
         ref={videoRef}
